@@ -1,5 +1,6 @@
 import React from "./react";
 import ReactDOM from "./react-dom";
+import {updateQueue} from "./component"
 /* let element = (
   <div
     className="hello-test"
@@ -35,9 +36,16 @@ class ClassCompoment extends React.Component {
     };
   }
   handleClick() {
+    updateQueue.isBatchingUpdate = true
     this.setState({
       number: this.state.number + 1,
     });
+    console.log(this.state.number);
+    this.setState({
+      number: this.state.number + 1,
+    });
+    console.log(this.state.number);
+    updateQueue.batchUpdate()
   }
   render() {
     return (
