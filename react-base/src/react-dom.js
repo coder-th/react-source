@@ -15,8 +15,14 @@ function createDOM(vdom) {
     return document.createTextNode(vdom);
   }
   let { type, props } = vdom;
-  // 是一个虚拟dom 元素，也就是react元素,创建原生组件
-  let dom = document.createElement(type);
+  let dom;
+  // 如果要渲染的是自定义组件
+  if (typeof type === "function") {
+    return mountFunctionComponent(vdom);
+  } else {
+    // 是一个虚拟dom 元素，也就是react元素,创建原生组件
+    dom = document.createElement(type);
+  }
 
   if (props) {
     updateProps(dom, props);
@@ -81,6 +87,16 @@ function reconcileChildren(childrenVDOM, parentDOM) {
     const childVDOM = childrenVDOM[i];
     mount(childVDOM, parentDOM);
   }
+}
+/**
+ * 挂载函数组件
+ * @param {*} vdom
+ * @returns
+ */
+function mountFunctionComponent(vdom) {
+  let { type, props } = vdom;
+  let oldRenderVdom = type(props);
+  return createDOM(oldRenderVdom);
 }
 const ReactDOM = { render };
 export default ReactDOM;
