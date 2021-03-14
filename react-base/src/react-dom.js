@@ -4,6 +4,7 @@
  * @param {*} container 挂载的容器
  */
 function render(vdom, container) {
+  console.log(vdom);
   mount(vdom, container);
 }
 /**
@@ -18,7 +19,13 @@ function createDOM(vdom) {
   let dom;
   // 如果要渲染的是自定义组件
   if (typeof type === "function") {
-    return mountFunctionComponent(vdom);
+    if (type.isReactComponent) {
+      // 是一个类组件
+      return mountClassComponent(vdom);
+    } else {
+      // 是一个函数组件
+      return mountFunctionComponent(vdom);
+    }
   } else {
     // 是一个虚拟dom 元素，也就是react元素,创建原生组件
     dom = document.createElement(type);
@@ -97,6 +104,24 @@ function mountFunctionComponent(vdom) {
   let { type, props } = vdom;
   let oldRenderVdom = type(props);
   return createDOM(oldRenderVdom);
+}
+/**
+ * 挂载类组件
+ * @param {*} vdom
+ */
+function mountClassComponent(vdom) {
+  //解构类的定义和类的属性对象
+  let { type, props } = vdom;
+  //创建类的实例
+  let classInstance = new type(props);
+  //调用实例的render方法返回要渲染的虚拟DOM对象
+  let oldRenderVdom = classInstance.render();
+  //把这个将要渲染的虚拟dom添加到类的实例上
+  classInstance.oldRenderVdom = vdom.oldRenderVdom = oldRenderVdom;
+  //根据虚拟DOM对象创建真实DOM对象
+  let dom = createDOM(oldRenderVdom);
+  //为以后类组件的更新,把真实DOM挂载到了类的实例上
+  return dom;
 }
 const ReactDOM = { render };
 export default ReactDOM;
