@@ -31,7 +31,13 @@ class ClassCompoment extends React.Component {
     // 能修改的状态
     this.state = {
       number: 0,
+      name: "tianheng",
     };
+  }
+  handleClick() {
+    this.setState({
+      number: this.state.number + 1,
+    });
   }
   render() {
     return (
@@ -40,11 +46,15 @@ class ClassCompoment extends React.Component {
         style={{ background: "red", color: "#fff", fontSize: "18px" }}
       >
         <p>
-          类组件
-          <span style={{ fontSize: "50px" }}>tianheng</span>
+          {this.state.name}
+          <span style={{ fontSize: "50px" }}>{this.state.number}</span>
+          <button onClick={() => this.handleClick()}>类组件事件处理</button>
         </p>
       </div>
     );
   }
 }
-ReactDOM.render(React.createElement(ClassCompoment), document.getElementById("root"));
+ReactDOM.render(
+  React.createElement(ClassCompoment),
+  document.getElementById("root")
+);

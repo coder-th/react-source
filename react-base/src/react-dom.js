@@ -4,14 +4,13 @@
  * @param {*} container 挂载的容器
  */
 function render(vdom, container) {
-  console.log(vdom);
   mount(vdom, container);
 }
 /**
  * vdom 变成真实DOM
  * @param {*} vdom
  */
-function createDOM(vdom) {
+export function createDOM(vdom) {
   if (typeof vdom === "string" || typeof vdom === "number") {
     return document.createTextNode(vdom);
   }
@@ -42,7 +41,7 @@ function createDOM(vdom) {
       reconcileChildren(props.children, dom);
     } else {
       //子节点就是字符串或者数字
-      dom.textContent = props.children ? props.children.toString() : "";
+      dom.textContent = props.children.toString();
     }
   }
 
@@ -62,6 +61,9 @@ function updateProps(dom, props) {
       for (let attr in styleObj) {
         dom.style[attr] = styleObj[attr];
       }
+    } else if (key.startsWith("on")) {
+      // 给dom添加事件处理
+      dom[key.toLocaleLowerCase()] = props[key];
     } else {
       // 传的属性更新到dom 上
       dom[key] = props[key];
@@ -121,7 +123,8 @@ function mountClassComponent(vdom) {
   //根据虚拟DOM对象创建真实DOM对象
   let dom = createDOM(oldRenderVdom);
   //为以后类组件的更新,把真实DOM挂载到了类的实例上
+  classInstance.dom = dom
   return dom;
 }
-const ReactDOM = { render };
+const ReactDOM = { render,createDOM };
 export default ReactDOM;
