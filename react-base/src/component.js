@@ -78,8 +78,9 @@ class Component {
     if (this.componentWillUpdate) {
       this.componentWillUpdate()
     }
-    let newVDom = this.render()
-    updateClassComponent(this, newVDom)
+    let newRenderVdom = this.render()
+    // updateClassComponent(this, newRenderVdom)
+    compareTwoVdom(this.oldRenderVdom.dom.parentNode,this.oldRenderVdom,newRenderVdom)
     if (this.componentDidUpdate) {
       this.componentDidUpdate()
     }
@@ -106,6 +107,10 @@ function shouldUpdate(classInstance, nextStates) {
   if (classInstance.shouldComponentUpdate && !classInstance.shouldComponentUpdate(classInstance.props, classInstance.state)) return
   // 要进行更新
   classInstance.forceUpdate()
+}
+
+function compareTwoVdom() {
+
 }
 
 export default Component;
