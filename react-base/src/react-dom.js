@@ -65,7 +65,7 @@ function updateProps(dom, props) {
       }
     } else if (key.startsWith("on")) {
       // 给dom添加事件处理
-      addEvent(dom,key.toLocaleLowerCase(),props[key])
+      addEvent(dom, key.toLocaleLowerCase(), props[key])
     } else {
       // 传的属性更新到dom 上
       dom[key] = props[key];
@@ -87,6 +87,7 @@ function mount(vdom, container) {
    */
   const dom = createDOM(vdom);
   container.appendChild(dom);
+  dom.componentDidMount && dom.componentDidMount()
 }
 /**
  * 挂载子节点
@@ -118,6 +119,10 @@ function mountClassComponent(vdom) {
   let { type, props } = vdom;
   //创建类的实例
   let classInstance = new type(props);
+  // 实例上有componentWillMount这个生命周期
+  if (classInstance.componentWillMount) {
+    classInstance.componentWillMount.call(classInstance)
+  }
   //调用实例的render方法返回要渲染的虚拟DOM对象
   let oldRenderVdom = classInstance.render();
   //把这个将要渲染的虚拟dom添加到类的实例上
@@ -126,7 +131,10 @@ function mountClassComponent(vdom) {
   let dom = createDOM(oldRenderVdom);
   //为以后类组件的更新,把真实DOM挂载到了类的实例上
   classInstance.dom = dom
+  if (classInstance.componentDidMount) {
+    dom.componentDidMount = classInstance.componentDidMount.bind(classInstance);
+  }
   return dom;
 }
-const ReactDOM = { render,createDOM };
+const ReactDOM = { render, createDOM };
 export default ReactDOM;

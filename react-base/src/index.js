@@ -44,7 +44,24 @@ class ClassCompoment extends React.Component {
     });
     console.log(this.state.number);
   }
+  componentWillMount() {
+    console.log("组件即将挂载",this.state.number);
+  }
+  componentDidMount() {
+    console.log("组件完成挂载",this.state.number);
+  }
+  shouldComponentUpdate() {
+    console.log("是否要更新",this.state.number);
+    return true
+  }
+  componentWillUpdate() {
+    console.log("组件即将更新",this.state.number);
+  }
+  componentDidUpdate() {
+    console.log("组件完成更新",this.state.number);
+  }
   render() {
+    console.log("组件挂载",this.state.number);
     return (
       <div
         className="hello-func"
