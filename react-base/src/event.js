@@ -24,9 +24,13 @@ function dispatchEvent(event) {
     let eventType = 'on' + type
     updateQueue.isBatchingUpdate = true;// 设置为批量更新
     syntheticEvent = createSyntheticEvent(event);// 创建合成事件
-    let { store } = target;
-    let listener = store && store[eventType]
-    listener && listener.call(target, syntheticEvent)
+    while(target) {
+        let { store } = target;
+        let listener = store && store[eventType]
+        listener && listener.call(target, syntheticEvent)
+        // 不断寻找到有该事件的dom元素，实现事件冒泡
+        target = target.parentNode
+    }
     for(let key in syntheticEvent) {
         // 重置合成事件
         syntheticEvent[key] = null

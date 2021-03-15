@@ -53,7 +53,7 @@ class ClassCompoment extends React.Component {
         <p>
           {this.state.name}
           <span style={{ fontSize: "50px" }}>{this.state.number}</span>
-          <button onClick={() => this.handleClick()}>类组件事件处理</button>
+          <button onClick={() => this.handleClick()}><span>+</span></button>
         </p>
       </div>
     );
