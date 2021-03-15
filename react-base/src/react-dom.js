@@ -1,3 +1,5 @@
+import { addEvent } from "./event";
+
 /**
  * 渲染元素
  * @param {*} vdom 虚拟DOM
@@ -63,7 +65,7 @@ function updateProps(dom, props) {
       }
     } else if (key.startsWith("on")) {
       // 给dom添加事件处理
-      dom[key.toLocaleLowerCase()] = props[key];
+      addEvent(dom,key.toLocaleLowerCase(),props[key])
     } else {
       // 传的属性更新到dom 上
       dom[key] = props[key];
