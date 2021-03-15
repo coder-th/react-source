@@ -39,10 +39,6 @@ class ClassCompoment extends React.Component {
       number: this.state.number + 1,
     });
     console.log(this.state.number);
-    this.setState({
-      number: this.state.number + 1,
-    });
-    console.log(this.state.number);
   }
   componentWillMount() {
     console.log("组件即将挂载",this.state.number);

@@ -43,11 +43,9 @@ class Updater {
     let { classInstance, pendingStates, callbacks } = this;
     // 如果有等待更新的状态对象的话
     if (pendingStates.length > 0) {
-      // classInstance.state = this.getState(); //计算新状态
-      // classInstance.forceUpdate();
-      // callbacks.forEach(cb => cb())
-      // callbacks.length = 0
       shouldUpdate(classInstance, this.getState())
+      callbacks.forEach(cb => cb())
+      callbacks.length = 0
     }
   }
   getState() {
