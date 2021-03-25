@@ -79,7 +79,7 @@ class Component {
       this.componentWillUpdate()
     }
     let newRenderVdom = this.render()
-    // updateClassComponent(this, newRenderVdom)
+    updateClassComponent(this, newRenderVdom)
     compareTwoVdom(this.oldRenderVdom.dom.parentNode,this.oldRenderVdom,newRenderVdom)
     if (this.componentDidUpdate) {
       this.componentDidUpdate()

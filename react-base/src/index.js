@@ -1,5 +1,7 @@
-import ReactDOM from "./react-dom";
-import React from "./react";
+import ReactDOM from "./core/react-dom";
+import React from "./core/react";
+// import React from "react"
+// import ReactDOM from "react-dom"
 class ClassCompoment extends React.Component {
   constructor(props) {
     // props是一个只读的对象
@@ -17,24 +19,24 @@ class ClassCompoment extends React.Component {
       count: this.state.count + 1 
     });
   }
-  // componentWillMount() {
-  //   console.log("组件即将挂载",this.state.number);
-  // }
-  // componentDidMount() {
-  //   console.log("组件完成挂载",this.state.number);
-  // }
-  // shouldComponentUpdate() {
-  //   console.log("是否要更新",this.state.number);
-  //   return true
-  // }
-  // componentWillUpdate() {
-  //   console.log("组件即将更新",this.state.number);
-  // }
-  // componentDidUpdate() {
-  //   console.log("组件完成更新",this.state.number);
-  // }
+  componentWillMount() {
+    console.log("组件即将挂载",this.state.number);
+  }
+  componentDidMount() {
+    console.log("组件完成挂载",this.state.number);
+  }
+  shouldComponentUpdate() {
+    console.log("是否要更新",this.state.number);
+    return true
+  }
+  componentWillUpdate() {
+    console.log("组件即将更新",this.state.number);
+  }
+  componentDidUpdate() {
+    console.log("组件完成更新",this.state.number);
+  }
   render() {
-    // console.log("组件挂载",this.state.number);
+    console.log("组件重新绘制",this.state.number);
     return (
       <div
         className="hello-func"
@@ -44,7 +46,7 @@ class ClassCompoment extends React.Component {
           {this.state.name}
           <span style={{ fontSize: "50px" }}>{this.state.number}</span>
           <button onClick={() => this.handleClick()}><span>+</span></button>
-          {this.state.count % 3 === 0 ? null : <ChildCounter count={this.state.count}></ChildCounter>}
+          {this.state.count % 3 === 1 ? null : <ChildCounter count={this.state.count}></ChildCounter>}
         </div>
       </div>
     );
@@ -83,24 +85,6 @@ class ChildCounter extends React.Component {
   }
 }
 ReactDOM.render(
-  React.createElement(ClassCompoment),
+  <ClassCompoment></ClassCompoment>,
   document.getElementById("root")
 );
-/**
- * 
-子组件即将挂载
-子组件计算虚拟DOM
-子组件完成挂载
-子组件将要接收到新的属性
-子是否要更新 false 2
-子组件将要被卸载
-子组件即将挂载
-子组件计算虚拟DOM
-子组件完成挂载
-子组件将要接收到新的属性
-子是否要更新 true 5
-子组件即将更新
-子组件计算虚拟DOM
-子组件完成更新
-子组件将要被卸载
- */
