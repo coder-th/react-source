@@ -43,8 +43,7 @@ class Updater {
     let { classInstance, pendingStates, callbacks } = this;
     // 如果有等待更新的状态对象的话
     if (pendingStates.length > 0) {
-      classInstance.state = this.getState(); //计算新状态
-      classInstance.forceUpdate();
+      shouldUpdate(classInstance, this.getState())
       callbacks.forEach(cb => cb())
       callbacks.length = 0
     }
@@ -76,8 +75,15 @@ class Component {
     this.updater.addState(partialState, callback);
   }
   forceUpdate() {
-      let newVDom = this.render()
-      updateClassComponent(this,newVDom)
+    if (this.componentWillUpdate) {
+      this.componentWillUpdate()
+    }
+    let newRenderVdom = this.render()
+    // updateClassComponent(this, newRenderVdom)
+    compareTwoVdom(this.oldRenderVdom.dom.parentNode,this.oldRenderVdom,newRenderVdom)
+    if (this.componentDidUpdate) {
+      this.componentDidUpdate()
+    }
   }
 }
 function updateClassComponent(classInstance, newVdom) {
@@ -88,6 +94,23 @@ function updateClassComponent(classInstance, newVdom) {
   oldDOM.parentNode.replaceChild(newDOM, oldDOM);
   // 保存新的真实DOM到实例中，方便下次进行调用
   classInstance.dom = newDOM;
+}
+/**
+ * 判断组件是否需要更新
+ * @param {*} classInstance 组件实例
+ * @param {*} nextStates 新的状态
+ */
+function shouldUpdate(classInstance, nextStates) {
+  // 不管组件要不要刷新，组件的state属性一定会改变
+  classInstance.state = nextStates
+  // 有shouldComponentUpdate，并且返回值是false
+  if (classInstance.shouldComponentUpdate && !classInstance.shouldComponentUpdate(classInstance.props, classInstance.state)) return
+  // 要进行更新
+  classInstance.forceUpdate()
+}
+
+function compareTwoVdom() {
+
 }
 
 export default Component;
