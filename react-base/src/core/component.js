@@ -1,4 +1,4 @@
-import { createDOM } from "./react-dom";
+import { compareTwoVdom, createDOM } from "./react-dom";
 /**
  * 合成事件：
  *  1. 在react中，事件的更新可能是异步的也可能是同步的，是批量的
@@ -40,15 +40,15 @@ class Updater {
     }
   }
   updateComponent() {
-    let { classInstance, pendingStates, callbacks } = this;
-    // 如果有等待更新的状态对象的话
-    if (pendingStates.length > 0) {
-      shouldUpdate(classInstance, this.getState())
+    let { classInstance, pendingStates, callbacks,nextProps } = this;
+    // 如果有等待更新的状态对象的话或者新的属性时
+    if (nextProps || pendingStates.length > 0) {
+      shouldUpdate(classInstance, nextProps,this.getState())
       callbacks.forEach(cb => cb())
       callbacks.length = 0
     }
   }
-  getState() {
+  getState(nextProps) {
     let { classInstance, pendingStates } = this;
     let { state } = classInstance;
     pendingStates.forEach((nextState) => {
@@ -75,9 +75,6 @@ class Component {
     this.updater.addState(partialState, callback);
   }
   forceUpdate() {
-    if (this.componentWillUpdate) {
-      this.componentWillUpdate()
-    }
     let newRenderVdom = this.render()
     updateClassComponent(this, newRenderVdom)
     compareTwoVdom(this.oldRenderVdom.dom.parentNode,this.oldRenderVdom,newRenderVdom)
@@ -91,7 +88,7 @@ function updateClassComponent(classInstance, newVdom) {
   // 得到新的真实dom
   let newDOM = createDOM(newVdom);
   // 替换原来的真实DOM
-  oldDOM.parentNode.replaceChild(newDOM, oldDOM);
+  oldDOM.parentNode && oldDOM.parentNode.replaceChild(newDOM, oldDOM);
   // 保存新的真实DOM到实例中，方便下次进行调用
   classInstance.dom = newDOM;
 }
@@ -100,17 +97,28 @@ function updateClassComponent(classInstance, newVdom) {
  * @param {*} classInstance 组件实例
  * @param {*} nextStates 新的状态
  */
-function shouldUpdate(classInstance, nextStates) {
+function shouldUpdate(classInstance,nextProps, nextStates) {
+  let willUpdate = true;//是否要更新
   // 不管组件要不要刷新，组件的state属性一定会改变
   classInstance.state = nextStates
+  if(nextProps) {
+    classInstance.props = nextProps
+  }
+  console.log("计算结果",classInstance.shouldComponentUpdate&&classInstance.shouldComponentUpdate(nextProps, nextStates));
   // 有shouldComponentUpdate，并且返回值是false
-  if (classInstance.shouldComponentUpdate && !classInstance.shouldComponentUpdate(classInstance.props, classInstance.state)) return
+  if (classInstance.shouldComponentUpdate && !classInstance.shouldComponentUpdate(nextProps, nextStates)) {
+    willUpdate = false
+    console.log("取消更新");
+  }
+  // 如果需要更新，执行更新的生命周期
+  if(willUpdate && classInstance.componentWillUpdate) {
+    classInstance.componentWillUpdate()
+  }
   // 要进行更新
-  classInstance.forceUpdate()
-}
-
-function compareTwoVdom() {
-
+  if(willUpdate) {
+    console.log("强制更新");
+    classInstance.forceUpdate()
+  }
 }
 
 export default Component;

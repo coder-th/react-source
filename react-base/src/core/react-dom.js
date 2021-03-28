@@ -1,3 +1,4 @@
+import { REACT_TEXT } from "../utils/constants";
 import { addEvent } from "./event";
 
 /**
@@ -13,13 +14,12 @@ function render(vdom, container) {
  * @param {*} vdom
  */
 export function createDOM(vdom) {
-  if (typeof vdom === "string" || typeof vdom === "number") {
-    return document.createTextNode(vdom);
-  }
   let { type, props } = vdom;
   let dom;
-  // 如果要渲染的是自定义组件
-  if (typeof type === "function") {
+  if (type === REACT_TEXT) {
+    dom = document.createTextNode(props.content);
+  } else if (typeof type === "function") {
+    // 如果要渲染的是自定义组件
     if (type.isReactComponent) {
       // 是一个类组件
       return mountClassComponent(vdom);
@@ -41,9 +41,6 @@ export function createDOM(vdom) {
       mount(props.children, dom);
     } else if (Array.isArray(props.children)) {
       reconcileChildren(props.children, dom);
-    } else {
-      //子节点就是字符串或者数字
-      dom.textContent = props.children.toString();
     }
   }
   // 真实DOM保存到虚拟DOM上
@@ -154,9 +151,10 @@ export function compareTwoVdom(parentDOM, oldVdom, newVdom, nextDOM) {
   // 新的没有，老的有，则删除
   if (oldVdom && !newVdom) {
     // 找到虚拟dom对应的真实dom
-    let currentVdom = findDOM(oldVdom);
-    if (currentVdom) {
-      parentDOM.removeChild(currentVdom);
+    let currentdom = findDOM(oldVdom);
+    if (currentdom) {
+      console.log(parentDOM, currentdom, oldVdom);
+      parentDOM.removeChild(currentdom);
     }
     // 执行组件的卸载
     if (oldVdom.classInstance.componentWillUnmount) {
@@ -178,6 +176,10 @@ export function compareTwoVdom(parentDOM, oldVdom, newVdom, nextDOM) {
     // 执行组件的卸载
     if (oldVdom.classInstance.componentWillUnmount) {
       oldVdom.classInstance.componentWillUnmount();
+    }
+    // 执行新组件的挂载操作
+    if (newVdom.classInstance && newVdom.classInstance.componentDidMount) {
+      newVdom.classInstance.componentDidMount();
     }
   } else {
     // 如果新旧都有，并且标签一样，就可以复用老的DOM节点，进行深度的DOM-DIFF
@@ -210,16 +212,49 @@ function findDOM(vdom) {
  * @param {*} newVdom
  */
 function updateElement(oldVdom, newVdom) {
-  if (typeof oldVdom.type === "string") {
+  // 二者都是文本节点
+  if (oldVdom.type === REACT_TEXT && newVdom.type === REACT_TEXT) {
+    // 原生组件，复用老的
+    let currentDOM = (newVdom.dom = oldVdom.dom);
+    currentDOM && (currentDOM.textContent = newVdom.props.content); // 直接修改文本内容
+  } else if (typeof oldVdom.type === "string") {
     // 原生组件，复用老的
     let currentDOM = (newVdom.dom = oldVdom.dom);
     // 更新自身的属性
     updateProps(currentDOM, oldVdom.props, newVdom.props);
     // 更新子节点
     updateChildren(currentDOM, oldVdom.props.children, newVdom.props.children);
+  } else if (typeof oldVdom.type === "function") {
+    if (oldVdom.type.isReactComponent) {
+      updateClassComponent(oldVdom, newVdom); //老的和新的都是类组件，进行类组件更新
+    } else {
+      // updateFunctionComponent(oldVdom,newVdom);//老的和新的都是函数组件，进行函数数组更新
+    }
   }
 }
 
-function updateChildren(dom, oldVdom, newVdom) {}
+function updateChildren(parentDOM, oldVChildren, newVChildren) {
+  //因为children可能是对象，也可能是数组,为了方便按索引比较，全部格式化为数组
+  oldVChildren = Array.isArray(oldVChildren) ? oldVChildren : [oldVChildren];
+  newVChildren = Array.isArray(newVChildren) ? newVChildren : [newVChildren];
+  let maxLength = Math.max(oldVChildren.length, newVChildren.length);
+  for (let i = 0; i < maxLength; i++) {
+    compareTwoVdom(parentDOM, oldVChildren[i], newVChildren[i]);
+  }
+}
+/**
+ * 如果新旧节点都是类组件
+ * @param {*} oldVdom
+ * @param {*} newVdom
+ */
+function updateClassComponent(oldVdom, newVdom) {
+  let classInstance = (newVdom.classInstance = oldVdom.classInstance); //类的实例需要复用。类的实例不管更新多少只有一个
+  newVdom.oldRenderVdom = oldVdom.oldRenderVdom; //上一次的这个类组件的渲染出来的虚拟DOM
+  if (classInstance.componentWillReceiveProps) {
+    //组件将要接收到新的属性
+    classInstance.componentWillReceiveProps();
+  }
+  classInstance.updater.emitUpdate(newVdom.props);
+}
 const ReactDOM = { render, createDOM };
 export default ReactDOM;
