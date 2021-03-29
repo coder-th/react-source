@@ -124,6 +124,10 @@ function mountClassComponent(vdom) {
   let { type, props } = vdom;
   //创建类的实例
   let classInstance = new type(props);
+  // 在组件类的静态属性，如果没有这个属性，那么实例的context就取不到值
+  if(type.contextType) {
+    classInstance.context = type.contextType._currentValue
+  }
   // 保存当前实例到虚拟dom中
   vdom.classInstance = classInstance;
   // 实例上有componentWillMount这个生命周期
@@ -246,11 +250,18 @@ function updateElement(oldVdom, newVdom) {
     if (oldVdom.type.isReactComponent) {
       updateClassComponent(oldVdom, newVdom); //老的和新的都是类组件，进行类组件更新
     } else {
-      // updateFunctionComponent(oldVdom,newVdom);//老的和新的都是函数组件，进行函数数组更新
+      updateFunctionComponent(oldVdom,newVdom);//老的和新的都是函数组件，进行函数数组更新
     }
   }
 }
-
+function updateFunctionComponent(oldVdom,newVdom){
+  let parentDOM=findDOM(oldVdom).parentNode;//div#counter
+  let {type,props}= newVdom;//FunctionCounter {count:2,children:[div]}
+  let oldRenderVdom=oldVdom.oldRenderVdom;//老的渲染出来的vdom div#counter-function>0
+  let newRenderVdom = type(props);//新的vdom div#counter-function>2
+  compareTwoVdom(parentDOM,oldRenderVdom,newRenderVdom);
+  newVdom.oldRenderVdom = newRenderVdom;
+}
 function updateChildren(parentDOM, oldVChildren, newVChildren) {
   //因为children可能是对象，也可能是数组,为了方便按索引比较，全部格式化为数组
   oldVChildren = Array.isArray(oldVChildren) ? oldVChildren : [oldVChildren];
