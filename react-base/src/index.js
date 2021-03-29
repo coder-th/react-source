@@ -2,62 +2,44 @@ import ReactDOM from "./core/react-dom";
 import React from "./core/react";
 // import React from "react";
 // import ReactDOM from "react-dom";
-function getStyle(color) {
-  return {
-    width: "200px",
-    border: `solid 2px ${color}`,
-    padding: "5px",
-    margin: "5px",
-  };
-}
-let colorContext = React.createContext();
-class ClassCompoment extends React.Component {
-  state = { color: "red" };
-  changeColor = (color) => {
-    this.setState({ color });
-  };
-  render() {
-    let contextValue = {
-      color: this.state.color,
-      changeColor: this.changeColor,
+let withLoading = (loadingMessage) => {
+  return (OldComponent) => {
+    return class extends React.Component {
+      show = () => {
+        let loadingDIV = document.createElement("div");
+        loadingDIV.innerHTML = `
+        <p id='loading' style='color: grey;position:absolute;top:50%;left: 50%;'>${loadingMessage}</p>
+        `;
+        document.body.appendChild(loadingDIV);
+      };
+      hide = () => {
+        document.getElementById("loading").remove();
+      };
+      render() {
+        let extraArgs = {show: this.show,hide:this.hide}
+        return <OldComponent {...this.props} {...extraArgs}></OldComponent>;
+      }
     };
+  };
+};
+// 使用方式一： 使用装饰器
+@withLoading('加载中...')
+class ClassCompoment extends React.Component {
+  render() {
     return (
-      <colorContext.Provider value={contextValue}>
-        <div>
-          <Head></Head>
-          <Body></Body>
-        </div>
-      </colorContext.Provider>
+      <div>
+        <button onClick={() => this.props.show()}>显示</button>
+        <button onClick={() => this.props.hide()}>隐藏</button>
+      </div>
     );
   }
 }
-// 使用Context的值方式一：使用静态属性 contextType，只能是类使用
-class Head extends React.Component {
-  static contextType = colorContext;
-  render() {
-    return <div style={getStyle(this.context.color)}>Head</div>;
-  }
-}
-// 使用Context的值方式二：使用Consumer 传递一个回调函数，类和函数都能使用
-class Body extends React.Component {
-  render() {
-    return (
-      <colorContext.Consumer>
-        {(currentValue) => (
-          <div style={getStyle(currentValue.color)}>
-            <button onClick={() => currentValue.changeColor("green")}>
-              绿色
-            </button>
-            <button onClick={() => currentValue.changeColor("red")}>
-              红色
-            </button>
-          </div>
-        )}
-      </colorContext.Consumer>
-    );
-  }
-}
+// 使用方式二： 使用函数调用
+// let newComponent = withLoading('加载中')
+// let NewClassComponent = newComponent(ClassCompoment)
+
 ReactDOM.render(
   <ClassCompoment></ClassCompoment>,
+  // <NewClassComponent></NewClassComponent>,
   document.getElementById("root")
 );
