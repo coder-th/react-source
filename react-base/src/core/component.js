@@ -106,10 +106,12 @@ class Component {
     let newRenderVdom = this.render();
     let oldRenderVdom = this.oldRenderVdom;
     let oldDOM = findDOM(oldRenderVdom);
+    // getSnapshotBeforeUpdate需要返回一个值 ，传给下一个生命周期当作参数
+    let extraArgs = this.getSnapshotBeforeUpdate&&this.getSnapshotBeforeUpdate();
     compareTwoVdom(oldDOM.parentNode, oldRenderVdom, newRenderVdom);
     this.oldRenderVdom = newRenderVdom;
     if (this.componentDidUpdate) {
-      this.componentDidUpdate(this.props, this.state);
+      this.componentDidUpdate(this.props, this.state,extraArgs);
     }
   }
 }

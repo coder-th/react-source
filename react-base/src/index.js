@@ -19,6 +19,12 @@ class ClassCompoment extends React.Component {
       count: this.state.count + 1,
     });
   }
+  getSnapshotBeforeUpdate() {
+    return 7
+  }
+  componentDidUpdate(nextProps,nextState,extraArgs) {
+    console.log(extraArgs);
+  }
   render() {
     return (
       <div
