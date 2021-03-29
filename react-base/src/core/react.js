@@ -12,9 +12,9 @@ function createElement(type,config,children) {
     if(config){
         delete config.__source;
         delete config.__self;
-        ref = config.ref;
+        ref = config.ref;// 添加ref
         delete config.ref;
-        key = config.key;
+        key = config.key;// 添加key
         delete config.key;
     }
     let props = {...config}
@@ -33,5 +33,11 @@ function createElement(type,config,children) {
     }
 }
 
-const React = {createElement,Component}
+export function createRef() {
+    return {
+        current: null
+    }
+}
+
+const React = {createElement,Component,createRef}
 export default React

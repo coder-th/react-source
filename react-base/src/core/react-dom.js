@@ -14,7 +14,7 @@ function render(vdom, container) {
  * @param {*} vdom
  */
 export function createDOM(vdom) {
-  let { type, props } = vdom;
+  let { type, props, ref } = vdom;
   let dom;
   if (type === REACT_TEXT) {
     dom = document.createTextNode(props.content);
@@ -45,6 +45,10 @@ export function createDOM(vdom) {
   }
   // 真实DOM保存到虚拟DOM上
   vdom.dom = dom;
+  // 将真实dom保存在虚拟dom的ref上
+  if (ref) {
+    ref.current = dom;
+  }
   return dom;
 }
 /**
@@ -127,12 +131,15 @@ function mountClassComponent(vdom) {
     classInstance.componentWillMount.call(classInstance);
   }
   // 实例上有getDerivedStateFromProps
-  if(type.getDerivedStateFromProps){
-    let partialState= type.getDerivedStateFromProps(classInstance.props,classInstance.state);
-    if(partialState){
-     classInstance.state = {...classInstance.state,...partialState};
+  if (type.getDerivedStateFromProps) {
+    let partialState = type.getDerivedStateFromProps(
+      classInstance.props,
+      classInstance.state
+    );
+    if (partialState) {
+      classInstance.state = { ...classInstance.state, ...partialState };
     }
- }
+  }
   //调用实例的render方法返回要渲染的虚拟DOM对象
   let oldRenderVdom = classInstance.render();
   //把这个将要渲染的虚拟dom添加到类的实例上
@@ -244,7 +251,7 @@ function updateElement(oldVdom, newVdom) {
   }
 }
 
-function  updateChildren(parentDOM, oldVChildren, newVChildren) {
+function updateChildren(parentDOM, oldVChildren, newVChildren) {
   //因为children可能是对象，也可能是数组,为了方便按索引比较，全部格式化为数组
   oldVChildren = Array.isArray(oldVChildren) ? oldVChildren : [oldVChildren];
   newVChildren = Array.isArray(newVChildren) ? newVChildren : [newVChildren];
