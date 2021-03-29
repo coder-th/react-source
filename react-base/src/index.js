@@ -31,14 +31,14 @@ class ClassCompoment extends React.Component {
     );
   }
 }
-// 使用Context的值方式一：使用静态属性 contextType
+// 使用Context的值方式一：使用静态属性 contextType，只能是类使用
 class Head extends React.Component {
   static contextType = colorContext;
   render() {
     return <div style={getStyle(this.context.color)}>Head</div>;
   }
 }
-// 使用Context的值方式二：使用Consumer 传递一个回调函数
+// 使用Context的值方式二：使用Consumer 传递一个回调函数，类和函数都能使用
 class Body extends React.Component {
   render() {
     return (
