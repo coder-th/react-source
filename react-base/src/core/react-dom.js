@@ -190,7 +190,7 @@ export function compareTwoVdom(parentDOM, oldVdom, newVdom, nextDOM) {
  * 根据虚拟dom查找对应的真实dom
  * @param {*} vdom
  */
-function findDOM(vdom) {
+export function findDOM(vdom) {
   let { type } = vdom;
   let dom;
   if (typeof type === "function") {

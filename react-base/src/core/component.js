@@ -1,4 +1,4 @@
-import { compareTwoVdom, createDOM } from "./react-dom";
+import { compareTwoVdom, findDOM } from "./react-dom";
 /**
  * 合成事件：
  *  1. 在react中，事件的更新可能是异步的也可能是同步的，是批量的
@@ -43,7 +43,7 @@ class Updater {
     let { classInstance, pendingStates, callbacks,nextProps } = this;
     // 如果有等待更新的状态对象的话或者新的属性时
     if (nextProps || pendingStates.length > 0) {
-      shouldUpdate(classInstance, nextProps,this.getState())
+      shouldUpdate(classInstance, nextProps,this.getState(nextProps))
       callbacks.forEach(cb => cb())
       callbacks.length = 0
     }
@@ -74,23 +74,21 @@ class Component {
   setState(partialState, callback) {
     this.updater.addState(partialState, callback);
   }
+  // 强制更新操作
   forceUpdate() {
+    this.updateComponent()
+  }
+  // 更新组件
+  updateComponent(){
     let newRenderVdom = this.render()
-    updateClassComponent(this, newRenderVdom)
-    compareTwoVdom(this.oldRenderVdom.dom.parentNode,this.oldRenderVdom,newRenderVdom)
+    let oldRenderVdom = this.oldRenderVdom;
+    let oldDOM = findDOM(oldRenderVdom)
+    compareTwoVdom(oldDOM.parentNode,oldRenderVdom,newRenderVdom)
+    this.oldRenderVdom = newRenderVdom;
     if (this.componentDidUpdate) {
-      this.componentDidUpdate()
+      this.componentDidUpdate(this.props,this.state)
     }
   }
-}
-function updateClassComponent(classInstance, newVdom) {
-  let oldDOM = classInstance.dom; // 取到上一次渲染出的真实DOM
-  // 得到新的真实dom
-  let newDOM = createDOM(newVdom);
-  // 替换原来的真实DOM
-  oldDOM.parentNode && oldDOM.parentNode.replaceChild(newDOM, oldDOM);
-  // 保存新的真实DOM到实例中，方便下次进行调用
-  classInstance.dom = newDOM;
 }
 /**
  * 判断组件是否需要更新
@@ -104,11 +102,9 @@ function shouldUpdate(classInstance,nextProps, nextStates) {
   if(nextProps) {
     classInstance.props = nextProps
   }
-  console.log("计算结果",classInstance.shouldComponentUpdate&&classInstance.shouldComponentUpdate(nextProps, nextStates));
   // 有shouldComponentUpdate，并且返回值是false
   if (classInstance.shouldComponentUpdate && !classInstance.shouldComponentUpdate(nextProps, nextStates)) {
     willUpdate = false
-    console.log("取消更新");
   }
   // 如果需要更新，执行更新的生命周期
   if(willUpdate && classInstance.componentWillUpdate) {
@@ -116,8 +112,7 @@ function shouldUpdate(classInstance,nextProps, nextStates) {
   }
   // 要进行更新
   if(willUpdate) {
-    console.log("强制更新");
-    classInstance.forceUpdate()
+    classInstance.updateComponent()
   }
 }
 
