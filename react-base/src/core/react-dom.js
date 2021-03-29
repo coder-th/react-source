@@ -168,6 +168,10 @@ export function compareTwoVdom(parentDOM, oldVdom, newVdom, nextDOM) {
     } else {
       parentDOM.appendChild(newDOM);
     }
+    //在这里执行新的虚拟DOM节点的DidMount事件
+    if (newVdom.classInstance && newVdom.classInstance.componentDidMount) {
+      newVdom.classInstance.componentDidMount();
+    }
   } else if (oldVdom && newVdom && oldVdom.type !== newVdom.type) {
     // 如果新旧都有，但是标签不一样
     let oldDOM = findDOM(oldVdom);
@@ -213,7 +217,7 @@ export function findDOM(vdom) {
  */
 function updateElement(oldVdom, newVdom) {
   // 二者都是文本节点
-  if (oldVdom.type === REACT_TEXT && newVdom.type === REACT_TEXT) {
+  if (oldVdom.type === REACT_TEXT) {
     // 原生组件，复用老的
     let currentDOM = (newVdom.dom = oldVdom.dom);
     currentDOM && (currentDOM.textContent = newVdom.props.content); // 直接修改文本内容
@@ -233,13 +237,22 @@ function updateElement(oldVdom, newVdom) {
   }
 }
 
-function updateChildren(parentDOM, oldVChildren, newVChildren) {
+function  updateChildren(parentDOM, oldVChildren, newVChildren) {
   //因为children可能是对象，也可能是数组,为了方便按索引比较，全部格式化为数组
   oldVChildren = Array.isArray(oldVChildren) ? oldVChildren : [oldVChildren];
   newVChildren = Array.isArray(newVChildren) ? newVChildren : [newVChildren];
   let maxLength = Math.max(oldVChildren.length, newVChildren.length);
   for (let i = 0; i < maxLength; i++) {
-    compareTwoVdom(parentDOM, oldVChildren[i], newVChildren[i]);
+    //在儿子们里查找，找索引是大于当前索引的
+    let nextDOM = oldVChildren.find(
+      (item, index) => index > i && item && item.dom
+    );
+    compareTwoVdom(
+      parentDOM,
+      oldVChildren[i],
+      newVChildren[i],
+      nextDOM && nextDOM.dom
+    );
   }
 }
 /**
@@ -254,6 +267,7 @@ function updateClassComponent(oldVdom, newVdom) {
     //组件将要接收到新的属性
     classInstance.componentWillReceiveProps();
   }
+
   classInstance.updater.emitUpdate(newVdom.props);
 }
 const ReactDOM = { render, createDOM };

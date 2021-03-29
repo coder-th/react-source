@@ -8,7 +8,13 @@ let syntheticEvent = {}
  * @param {*} listener 执行函数
  */
 export function addEvent(dom, eventType, listener) {
-    let store = dom.store || (dom.store = {})
+    let store;
+    if(dom.store){
+        store = dom.store;
+    }else{
+        dom.store={};
+        store=dom.store;
+    }
     store[eventType] = listener;
     if (!document[eventType]) {
         //事件委托，不管给哪一个元素绑定事件，最后都统一代理到document
@@ -35,6 +41,7 @@ function dispatchEvent(event) {
         // 重置合成事件
         syntheticEvent[key] = null
     }
+    updateQueue.isBatchingUpdate = false;
     updateQueue.batchUpdate();// 进行批量更新
 }
 /**

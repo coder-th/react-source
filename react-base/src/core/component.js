@@ -40,12 +40,12 @@ class Updater {
     }
   }
   updateComponent() {
-    let { classInstance, pendingStates, callbacks,nextProps } = this;
+    let { classInstance, pendingStates, callbacks, nextProps } = this;
     // 如果有等待更新的状态对象的话或者新的属性时
     if (nextProps || pendingStates.length > 0) {
-      shouldUpdate(classInstance, nextProps,this.getState(nextProps))
-      callbacks.forEach(cb => cb())
-      callbacks.length = 0
+      shouldUpdate(classInstance, nextProps, this.getState(nextProps));
+      callbacks.forEach((cb) => cb());
+      callbacks.length = 0;
     }
   }
   getState(nextProps) {
@@ -76,17 +76,17 @@ class Component {
   }
   // 强制更新操作
   forceUpdate() {
-    this.updateComponent()
+    this.updateComponent();
   }
   // 更新组件
-  updateComponent(){
-    let newRenderVdom = this.render()
+  updateComponent() {
+    let newRenderVdom = this.render();
     let oldRenderVdom = this.oldRenderVdom;
-    let oldDOM = findDOM(oldRenderVdom)
-    compareTwoVdom(oldDOM.parentNode,oldRenderVdom,newRenderVdom)
+    let oldDOM = findDOM(oldRenderVdom);
+    compareTwoVdom(oldDOM.parentNode, oldRenderVdom, newRenderVdom);
     this.oldRenderVdom = newRenderVdom;
     if (this.componentDidUpdate) {
-      this.componentDidUpdate(this.props,this.state)
+      this.componentDidUpdate(this.props, this.state);
     }
   }
 }
@@ -95,24 +95,27 @@ class Component {
  * @param {*} classInstance 组件实例
  * @param {*} nextStates 新的状态
  */
-function shouldUpdate(classInstance,nextProps, nextStates) {
-  let willUpdate = true;//是否要更新
-  // 不管组件要不要刷新，组件的state属性一定会改变
-  classInstance.state = nextStates
-  if(nextProps) {
-    classInstance.props = nextProps
-  }
+function shouldUpdate(classInstance, nextProps, nextStates) {
+  let willUpdate = true; //是否要更新
   // 有shouldComponentUpdate，并且返回值是false
-  if (classInstance.shouldComponentUpdate && !classInstance.shouldComponentUpdate(nextProps, nextStates)) {
-    willUpdate = false
+  if (
+    classInstance.shouldComponentUpdate &&
+    !classInstance.shouldComponentUpdate(nextProps, nextStates)
+  ) {
+    willUpdate = false;
   }
   // 如果需要更新，执行更新的生命周期
-  if(willUpdate && classInstance.componentWillUpdate) {
-    classInstance.componentWillUpdate()
+  if (willUpdate && classInstance.componentWillUpdate) {
+    classInstance.componentWillUpdate();
   }
+  if (nextProps) {
+    classInstance.props = nextProps;
+  }
+  // 不管组件要不要刷新，组件的state属性一定会改变
+  classInstance.state = nextStates;
   // 要进行更新
-  if(willUpdate) {
-    classInstance.updateComponent()
+  if (willUpdate) {
+    classInstance.updateComponent();
   }
 }
 
