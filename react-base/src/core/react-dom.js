@@ -126,6 +126,13 @@ function mountClassComponent(vdom) {
   if (classInstance.componentWillMount) {
     classInstance.componentWillMount.call(classInstance);
   }
+  // 实例上有getDerivedStateFromProps
+  if(type.getDerivedStateFromProps){
+    let partialState= type.getDerivedStateFromProps(classInstance.props,classInstance.state);
+    if(partialState){
+     classInstance.state = {...classInstance.state,...partialState};
+    }
+ }
   //调用实例的render方法返回要渲染的虚拟DOM对象
   let oldRenderVdom = classInstance.render();
   //把这个将要渲染的虚拟dom添加到类的实例上

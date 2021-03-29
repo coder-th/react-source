@@ -60,6 +60,15 @@ class Updater {
     });
     // 清空状态
     pendingStates.length = 0;
+    if (classInstance.constructor.getDerivedStateFromProps) {
+      let partialState = classInstance.constructor.getDerivedStateFromProps(
+        nextProps,
+        classInstance.state
+      );
+      if (partialState) {
+        state = { ...state, ...partialState };
+      }
+    }
     return state;
   }
 }
@@ -75,7 +84,21 @@ class Component {
     this.updater.addState(partialState, callback);
   }
   // 强制更新操作
+  //一般来说组件的属性和状态变化了才会更新组件
+  //如果属性和状态没变，我们也想更新怎么办呢？就可以调用forceUpdate
   forceUpdate() {
+    let nextState = this.state;
+    let nextProps = this.props;
+    if (this.constructor.getDerivedStateFromProps) {
+      let partialState = this.constructor.getDerivedStateFromProps(
+        nextProps,
+        nextState
+      );
+      if (partialState) {
+        nextState = { ...nextState, ...partialState };
+      }
+    }
+    this.state = nextState;
     this.updateComponent();
   }
   // 更新组件
