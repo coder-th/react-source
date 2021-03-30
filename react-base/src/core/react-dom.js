@@ -132,12 +132,15 @@ function mountFunctionComponent(vdom) {
  */
 function mountClassComponent(vdom) {
   //解构类的定义和类的属性对象
-  let { type, props } = vdom;
+  let { type, props,ref } = vdom;
   //创建类的实例
   let classInstance = new type(props);
   // 在组件类的静态属性，如果没有这个属性，那么实例的context就取不到值
   if (type.contextType) {
     classInstance.context = type.contextType._currentValue;
+  }
+  if(ref) {
+    classInstance.ref = ref
   }
   // 保存当前实例到虚拟dom中
   vdom.classInstance = classInstance;

@@ -1,8 +1,26 @@
 import Component, { PureComponent } from "./component";
-import { useState,useMemo,useCallback,useReducer,useEffect,useLayoutEffect,useRef,useContext} from "./react-dom";
+import {
+  useState,
+  useMemo,
+  useCallback,
+  useReducer,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useContext,
+} from "./react-dom";
 
 import { wrapToVdom } from "../utils";
-export { useState,useMemo,useCallback,useReducer,useEffect,useLayoutEffect,useRef,useContext };
+export {
+  useState,
+  useMemo,
+  useCallback,
+  useReducer,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useContext,
+};
 /**
  *
  * @param {*} type 元素的类型
@@ -80,13 +98,22 @@ function cloneElement(oldElement, newProps, ...newChildren) {
 }
 /**
  * 实现函数组件的SCU
- * @param {*} FunctionComponent 
- * @returns 
+ * @param {*} FunctionComponent
+ * @returns
  */
 function memo(FunctionComponent) {
   return class extends PureComponent {
     render() {
       return FunctionComponent(this.props);
+    }
+  };
+}
+
+function forwardRef(FunctionComponent) {
+  return class extends Component {
+    render() {
+      console.log(this);
+      return FunctionComponent(this.props, this.ref);
     }
   };
 }
@@ -99,5 +126,6 @@ const React = {
   createContext,
   cloneElement,
   memo,
+  forwardRef,
 };
 export default React;

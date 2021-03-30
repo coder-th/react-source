@@ -7,7 +7,7 @@ import React, {
   useEffect,
   useLayoutEffect,
   useRef,
-  useContext
+  useContext,
 } from "./core/react";
 // import React, {
 //   useEffect,
@@ -18,41 +18,22 @@ import React, {
 // } from "react";
 // import ReactDOM from "react-dom";
 
-const ADD = "ADD";
-const MINUS = "MINUS";
-/**
- * 处理器，传入老状态，返回新状态
- * @param {*} state
- * @param {*} action
- */
-function reducer(state, action) {
-  switch (action.type) {
-    case ADD:
-      return { ...state, number: state.number + 1 };
-    case MINUS:
-      return { ...state, number: state.number - 1 };
-    default:
-      return state;
-  }
-}
-const CouterContext = React.createContext();
-function Counter() {
-  const { state, dispatch } = useContext(CouterContext);
+function Child(props, ref) {
   return (
-    <div>
-      <p>{state.number}</p>
-      <button onClick={() => dispatch({ type: ADD })}>+</button>
-      <button onClick={() => dispatch({ type: MINUS })}>-</button>
-    </div>
+    <input ref={ref} /> // ref.current.focus
   );
 }
-
+let ForwardedChild = React.forwardRef(Child);
 function App() {
-  const [state, dispatch] = useReducer(reducer, { number: 0 });
+  const childRef = React.createRef();
+  const getChildFocus = () => {
+    childRef.current.focus();
+  };
   return (
-    <CouterContext.Provider value={{ state, dispatch }}>
-      <Counter></Counter>
-    </CouterContext.Provider>
+    <div>
+      <ForwardedChild ref={childRef}></ForwardedChild>
+      <button onClick={() => getChildFocus()}>获取焦点</button>
+    </div>
   );
 }
 
