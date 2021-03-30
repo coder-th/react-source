@@ -3,112 +3,52 @@ import React from "./core/react";
 // import React from "react";
 // import ReactDOM from "react-dom";
 
-// render props 可以想象成插槽，是有逻辑，扩展内容， 而HOC是有内容，扩展逻辑
-// render Props写法一
-// 将内容添加在children中，children是一个函数
-/* class MouseTracker extends React.Component {
+class Parent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      x: 0,
-      y: 0,
+      number1: 0,
+      number2: 0,
     };
   }
-  handleMouseMove = (event) => {
+  handleNumber1 =  () => {
     this.setState({
-      x: event.clientX,
-      y: event.clientY,
-    });
-  };
+      number1: this.state.number1 + 1
+    })
+  }
+  handleNumber2 =  () =>  {
+    this.setState({
+      number2: this.state.number2 + 1
+    })
+  }
   render() {
+    console.log("Parent");
     return (
-      <div onMouseMove={this.handleMouseMove}>
-        {this.props.children(this.state)}
+      <div>
+        <Child1 number= {this.state.number1}></Child1>
+        <Child2 number= {this.state.number2}></Child2>
+        <button onClick={this.handleNumber1}>number1+1</button>
+        <button onClick={this.handleNumber2}>number2+1</button>
       </div>
     );
   }
 }
-ReactDOM.render(
-  <MouseTracker>
-    {(props) => (
-      <p>
-        鼠标移动的位置: x: {props.x},y: {props.y}
-      </p>
-    )}
-  </MouseTracker>, document.getElementById("root")
-); */
-
-// render Props写法二
-// 将内容添加在属性中，属性是一个函数
-/* class MouseTracker2 extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      x: 0,
-      y: 0,
-    };
-  }
-  handleMouseMove = (event) => {
-    this.setState({
-      x: event.clientX,
-      y: event.clientY,
-    });
-  };
+class Child1 extends React.PureComponent {
   render() {
+    console.log("child1");
     return (
-      <div onMouseMove={this.handleMouseMove}>
-        {this.props.render(this.state)}
-      </div>
-    );
+      <p>{this.props.number}</p>
+    )
   }
 }
-ReactDOM.render(
-  <MouseTracker2
-    render={(props) => (
-      <p>
-        鼠标移动的位置: x: {props.x},y: {props.y}
-      </p>
-    )}
-  ></MouseTracker2>,
-  document.getElementById("root")
-); */
 
-// render Props写法三
-// 通过HOC组件进行包裹
-function withTracker(OldComponent) {
-  return class extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        x: 0,
-        y: 0,
-      };
-    }
-    handleMouseMove = (event) => {
-      this.setState({
-        x: event.clientX,
-        y: event.clientY,
-      });
-    };
-    render() {
-      return (
-        <div onMouseMove={this.handleMouseMove}>
-          <OldComponent {...this.state}></OldComponent>
-        </div>
-      );
-    }
-  };
+class Child2 extends React.PureComponent {
+  render() {
+    console.log("child2");
+    return (
+      <p>{this.props.number}</p>
+    )
+  }
 }
-function Show(props) {
-  return (
-    <p>
-      鼠标移动的位置: x: {props.x},y: {props.y}
-    </p>
-  );
-}
-let MouseTracker3 = withTracker(Show);
 
-ReactDOM.render(
-  <MouseTracker3></MouseTracker3>,
-  document.getElementById("root")
-);
+ReactDOM.render(<Parent></Parent>, document.getElementById("root"));

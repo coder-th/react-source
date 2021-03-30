@@ -1,4 +1,4 @@
-import Component from "./component";
+import Component,{PureComponent} from "./component";
 import { wrapToVdom } from "../utils";
 /**
  *
@@ -79,6 +79,7 @@ function cloneElement(oldElement, newProps, ...newChildren) {
 const React = {
   createElement,
   Component,
+  PureComponent,
   createRef,
   createContext,
   cloneElement,
