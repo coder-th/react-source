@@ -192,6 +192,10 @@ export function compareTwoVdom(parentDOM, oldVdom, newVdom, nextDOM) {
     if (oldVdom.classInstance.componentWillUnmount) {
       oldVdom.classInstance.componentWillUnmount();
     }
+    if(hookStates[hookIndex]) {
+      let [destroyFunction] = hookStates[hookIndex]
+      destroyFunction && destroyFunction()
+    }
   } else if (!oldVdom && newVdom) {
     // 老的没有，新的有，则新建dom节点，并且插入
     let newDOM = createDOM(newVdom);
@@ -203,6 +207,10 @@ export function compareTwoVdom(parentDOM, oldVdom, newVdom, nextDOM) {
     //在这里执行新的虚拟DOM节点的DidMount事件
     if (newVdom.classInstance && newVdom.classInstance.componentDidMount) {
       newVdom.classInstance.componentDidMount();
+    }
+    if(hookStates[hookIndex]) {
+      let [destroyFunction] = hookStates[hookIndex]
+      destroyFunction && destroyFunction()
     }
   } else if (oldVdom && newVdom && oldVdom.type !== newVdom.type) {
     // 如果新旧都有，但是标签不一样
