@@ -308,6 +308,9 @@ function updateClassComponent(oldVdom, newVdom) {
 }
 
 export function useState(initialState) {
+  if(typeof initialState === 'function') {
+    initialState = initialState()
+  }
   // 把老的指取出来
   hookStates[hookIndex] = hookStates[hookIndex] || initialState;
   let currentIndex = hookIndex;

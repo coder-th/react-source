@@ -5,6 +5,8 @@ import React,{useState} from "./core/react";
 
 function App() {
   const [number, setNumber] = useState(0);
+  // 通过传入函数，可以经过复杂的函数计算，从而实现惰性初始化，实现懒加载，
+  const [count,setCount] = useState(()=> Math.random())
   const delayAdd = () => {
     setTimeout(()=> {
       // 异步无法获取最新的值，记录的是当时点击记录的state
@@ -15,7 +17,7 @@ function App() {
   }
   return (
     <div>
-      <p>number:{number}</p>
+      <p>number:{number},count: {count}</p>
       <button onClick={()=>{setNumber(number + 1)}}>+1</button>
       <button onClick={()=>{delayAdd()}}>delay+1</button>
     </div>
