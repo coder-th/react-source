@@ -1,8 +1,8 @@
 import Component, { PureComponent } from "./component";
-import { useState } from "./react-dom";
+import { useState,useMemo,useCallback } from "./react-dom";
 
 import { wrapToVdom } from "../utils";
-export {useState}
+export { useState,useMemo,useCallback };
 /**
  *
  * @param {*} type 元素的类型
@@ -78,6 +78,18 @@ function cloneElement(oldElement, newProps, ...newChildren) {
   //oldElement type key ref props....
   return { ...oldElement, props };
 }
+/**
+ * 实现函数组件的SCU
+ * @param {*} FunctionComponent 
+ * @returns 
+ */
+function memo(FunctionComponent) {
+  return class extends PureComponent {
+    render() {
+      return FunctionComponent(this.props);
+    }
+  };
+}
 
 const React = {
   createElement,
@@ -85,6 +97,7 @@ const React = {
   PureComponent,
   createRef,
   createContext,
-  cloneElement
+  cloneElement,
+  memo,
 };
 export default React;

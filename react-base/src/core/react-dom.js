@@ -308,21 +308,59 @@ function updateClassComponent(oldVdom, newVdom) {
 }
 
 export function useState(initialState) {
-  if(typeof initialState === 'function') {
-    initialState = initialState()
+  if (typeof initialState === "function") {
+    initialState = initialState();
   }
   // 把老的指取出来
   hookStates[hookIndex] = hookStates[hookIndex] || initialState;
   let currentIndex = hookIndex;
   function setState(newState) {
-    if(typeof newState === 'function') {
+    if (typeof newState === "function") {
       // 拿到最新的值
-      newState = newState(hookStates[currentIndex])
+      newState = newState(hookStates[currentIndex]);
     }
     hookStates[currentIndex] = newState;
     scheduleUpdate();
   }
   return [hookStates[hookIndex++], setState];
+}
+
+export function useMemo(factory, deps) {
+  if (hookStates[hookIndex]) {
+    let [lastMemo, lastDeps] = hookStates[hookIndex];
+    let same = deps.every((item, index) => item === lastDeps[index]);
+    if (same) {
+      hookIndex++;
+      return lastMemo;
+    } else {
+      let newMemo = factory();
+      hookStates[hookIndex++] = [newMemo, deps];
+      return newMemo;
+    }
+  } else {
+    // 第一次渲染
+    let newMemo = factory();
+    hookStates[hookIndex++] = [newMemo, deps];
+    return newMemo;
+  }
+}
+export function useCallback(callback, deps) {
+  if (hookStates[hookIndex]) {
+    let [lastCallback, lastDeps] = hookStates[hookIndex];
+    let same = deps.every((item, index) => item === lastDeps[index]);
+    if (same) {
+      //每一个hook都要占用一个索引
+      hookIndex++;
+      return lastCallback;
+    } else {
+      hookStates[hookIndex++] = [callback, deps];
+      return callback;
+    }
+  } else {
+    // 第一次渲染
+    hookStates[hookIndex++] = [callback, deps];
+    return callback;
+  }
 }
 const ReactDOM = { render, createDOM };
 export default ReactDOM;

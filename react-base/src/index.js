@@ -1,25 +1,32 @@
 import ReactDOM from "./core/react-dom";
-import React,{useState} from "./core/react";
-// import React, { useState } from "react";
+import React,{ useCallback, useMemo, useState }  from "./core/react";
+// import React, { useCallback, useMemo, useState } from "react";
 // import ReactDOM from "react-dom";
-
+function Child({book,handleClick}) {
+  console.log("Child");
+  return (
+    <div>
+      <button onClick={handleClick}>{book.count}</button>
+    </div>
+  )
+}
+let MemorizeChild = React.memo(Child)
 function App() {
-  const [number, setNumber] = useState(0);
-  // 通过传入函数，可以经过复杂的函数计算，从而实现惰性初始化，实现懒加载，
-  const [count,setCount] = useState(()=> Math.random())
-  const delayAdd = () => {
-    setTimeout(()=> {
-      // 异步无法获取最新的值，记录的是当时点击记录的state
-      // setNumber(number+1)
-      // 解决方案就是： setNumber中传入一个回调函数，可以拿到最新的值
-      setNumber((number)=> number+1)
-    },3000)
+  const [name,setName] = useState('tianheng')
+  const [count,setCount] = useState(0)
+  let book = useMemo(() => ({count}),[count])
+  const handleClick = useCallback(() => {
+    setCount(count+1)
+  },[count])
+  console.log("App");
+  const handleChange = () => {
+    setName(name + '22322')
   }
   return (
     <div>
-      <p>number:{number},count: {count}</p>
-      <button onClick={()=>{setNumber(number + 1)}}>+1</button>
-      <button onClick={()=>{delayAdd()}}>delay+1</button>
+      <button onClick={handleChange}>+Name</button>
+      <div>{name}</div>
+      <MemorizeChild book={book} handleClick={handleClick}></MemorizeChild>
     </div>
   );
 }
