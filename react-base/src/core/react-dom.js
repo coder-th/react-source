@@ -1,6 +1,13 @@
 import { REACT_TEXT } from "../utils/constants";
 import { addEvent } from "./event";
-
+/**
+ * 让函数可以使用状态
+ * @param {*} initialState
+ */
+let hookStates = [];
+//hook索引，表示当前的hook
+let hookIndex = 0;
+let scheduleUpdate;
 /**
  * 渲染元素
  * @param {*} vdom 虚拟DOM
@@ -8,6 +15,10 @@ import { addEvent } from "./event";
  */
 function render(vdom, container) {
   mount(vdom, container);
+  scheduleUpdate = () => {
+    hookIndex = 0;
+    compareTwoVdom(container, vdom, vdom);
+  };
 }
 /**
  * vdom 变成真实DOM
@@ -125,8 +136,8 @@ function mountClassComponent(vdom) {
   //创建类的实例
   let classInstance = new type(props);
   // 在组件类的静态属性，如果没有这个属性，那么实例的context就取不到值
-  if(type.contextType) {
-    classInstance.context = type.contextType._currentValue
+  if (type.contextType) {
+    classInstance.context = type.contextType._currentValue;
   }
   // 保存当前实例到虚拟dom中
   vdom.classInstance = classInstance;
@@ -250,16 +261,16 @@ function updateElement(oldVdom, newVdom) {
     if (oldVdom.type.isReactComponent) {
       updateClassComponent(oldVdom, newVdom); //老的和新的都是类组件，进行类组件更新
     } else {
-      updateFunctionComponent(oldVdom,newVdom);//老的和新的都是函数组件，进行函数数组更新
+      updateFunctionComponent(oldVdom, newVdom); //老的和新的都是函数组件，进行函数数组更新
     }
   }
 }
-function updateFunctionComponent(oldVdom,newVdom){
-  let parentDOM=findDOM(oldVdom).parentNode;//div#counter
-  let {type,props}= newVdom;//FunctionCounter {count:2,children:[div]}
-  let oldRenderVdom=oldVdom.oldRenderVdom;//老的渲染出来的vdom div#counter-function>0
-  let newRenderVdom = type(props);//新的vdom div#counter-function>2
-  compareTwoVdom(parentDOM,oldRenderVdom,newRenderVdom);
+function updateFunctionComponent(oldVdom, newVdom) {
+  let parentDOM = findDOM(oldVdom).parentNode; //div#counter
+  let { type, props } = newVdom; //FunctionCounter {count:2,children:[div]}
+  let oldRenderVdom = oldVdom.oldRenderVdom; //老的渲染出来的vdom div#counter-function>0
+  let newRenderVdom = type(props); //新的vdom div#counter-function>2
+  compareTwoVdom(parentDOM, oldRenderVdom, newRenderVdom);
   newVdom.oldRenderVdom = newRenderVdom;
 }
 function updateChildren(parentDOM, oldVChildren, newVChildren) {
@@ -294,6 +305,21 @@ function updateClassComponent(oldVdom, newVdom) {
   }
 
   classInstance.updater.emitUpdate(newVdom.props);
+}
+
+export function useState(initialState) {
+  // 把老的指取出来
+  hookStates[hookIndex] = hookStates[hookIndex] || initialState;
+  let currentIndex = hookIndex;
+  function setState(newState) {
+    if(typeof newState === 'function') {
+      // 拿到最新的值
+      newState = newState(hookStates[currentIndex])
+    }
+    hookStates[currentIndex] = newState;
+    scheduleUpdate();
+  }
+  return [hookStates[hookIndex++], setState];
 }
 const ReactDOM = { render, createDOM };
 export default ReactDOM;

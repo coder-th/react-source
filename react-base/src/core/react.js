@@ -1,5 +1,8 @@
-import Component,{PureComponent} from "./component";
+import Component, { PureComponent } from "./component";
+import { useState } from "./react-dom";
+
 import { wrapToVdom } from "../utils";
+export {useState}
 /**
  *
  * @param {*} type 元素的类型
@@ -82,6 +85,6 @@ const React = {
   PureComponent,
   createRef,
   createContext,
-  cloneElement,
+  cloneElement
 };
 export default React;

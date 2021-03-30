@@ -1,54 +1,25 @@
 import ReactDOM from "./core/react-dom";
-import React from "./core/react";
-// import React from "react";
+import React,{useState} from "./core/react";
+// import React, { useState } from "react";
 // import ReactDOM from "react-dom";
 
-class Parent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      number1: 0,
-      number2: 0,
-    };
+function App() {
+  const [number, setNumber] = useState(0);
+  const delayAdd = () => {
+    setTimeout(()=> {
+      // 异步无法获取最新的值，记录的是当时点击记录的state
+      // setNumber(number+1)
+      // 解决方案就是： setNumber中传入一个回调函数，可以拿到最新的值
+      setNumber((number)=> number+1)
+    },3000)
   }
-  handleNumber1 =  () => {
-    this.setState({
-      number1: this.state.number1 + 1
-    })
-  }
-  handleNumber2 =  () =>  {
-    this.setState({
-      number2: this.state.number2 + 1
-    })
-  }
-  render() {
-    console.log("Parent");
-    return (
-      <div>
-        <Child1 number= {this.state.number1}></Child1>
-        <Child2 number= {this.state.number2}></Child2>
-        <button onClick={this.handleNumber1}>number1+1</button>
-        <button onClick={this.handleNumber2}>number2+1</button>
-      </div>
-    );
-  }
-}
-class Child1 extends React.PureComponent {
-  render() {
-    console.log("child1");
-    return (
-      <p>{this.props.number}</p>
-    )
-  }
+  return (
+    <div>
+      <p>number:{number}</p>
+      <button onClick={()=>{setNumber(number + 1)}}>+1</button>
+      <button onClick={()=>{delayAdd()}}>delay+1</button>
+    </div>
+  );
 }
 
-class Child2 extends React.PureComponent {
-  render() {
-    console.log("child2");
-    return (
-      <p>{this.props.number}</p>
-    )
-  }
-}
-
-ReactDOM.render(<Parent></Parent>, document.getElementById("root"));
+ReactDOM.render(<App></App>, document.getElementById("root"));
