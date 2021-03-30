@@ -439,5 +439,8 @@ export function useRef(initialState) {
 export function useContext(context) {
   return context._currentValue
 }
+export function useImperativeHandle(ref,factory) {
+  ref.current = factory()
+}
 const ReactDOM = { render, createDOM };
 export default ReactDOM;

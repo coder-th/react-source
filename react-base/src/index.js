@@ -8,19 +8,28 @@ import React, {
   useLayoutEffect,
   useRef,
   useContext,
+  useImperativeHandle
 } from "./core/react";
-// import React, {
-//   useEffect,
-//   useRef,
-//   useLayoutEffect,
-//   useReducer,
-//   useContext,
-// } from "react";
-// import ReactDOM from "react-dom";
+/* import React, {
+  useEffect,
+  useRef,
+  useLayoutEffect,
+  useReducer,
+  useContext,
+  useImperativeHandle,
+} from "react";
+import ReactDOM from "react-dom"; */
 
-function Child(props, ref) {
+function Child(props, childRef) {
+  const inputRef = React.createRef();
+  // useImperativeHandle 向外部自定义暴露对应的方法或者属性，提高组件的安全性
+  useImperativeHandle(childRef, () => ({
+    focus: () => {
+      inputRef.current.focus();
+    },
+  }));
   return (
-    <input ref={ref} /> // ref.current.focus
+    <input ref={inputRef} {...props}/> // ref.current.focus
   );
 }
 let ForwardedChild = React.forwardRef(Child);

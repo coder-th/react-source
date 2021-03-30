@@ -8,6 +8,7 @@ import {
   useLayoutEffect,
   useRef,
   useContext,
+  useImperativeHandle
 } from "./react-dom";
 
 import { wrapToVdom } from "../utils";
@@ -20,6 +21,7 @@ export {
   useLayoutEffect,
   useRef,
   useContext,
+  useImperativeHandle
 };
 /**
  *
@@ -112,7 +114,6 @@ function memo(FunctionComponent) {
 function forwardRef(FunctionComponent) {
   return class extends Component {
     render() {
-      console.log(this);
       return FunctionComponent(this.props, this.ref);
     }
   };
