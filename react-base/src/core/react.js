@@ -1,8 +1,8 @@
 import Component, { PureComponent } from "./component";
-import { useState,useMemo,useCallback,useReducer } from "./react-dom";
+import { useState,useMemo,useCallback,useReducer,useEffect } from "./react-dom";
 
 import { wrapToVdom } from "../utils";
-export { useState,useMemo,useCallback,useReducer };
+export { useState,useMemo,useCallback,useReducer,useEffect };
 /**
  *
  * @param {*} type 元素的类型

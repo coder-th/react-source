@@ -378,5 +378,30 @@ export function useReducer(reducer, initialState) {
   }
   return [hookStates[hookIndex++], dispatch];
 }
+
+export function useEffect(callback, dependencies) {
+  if (hookStates[hookIndex]) {
+    let [destroyFunction, lastDependencies] = hookStates[hookIndex];
+    let allTheSame =
+      dependencies &&
+      dependencies.every((item, index) => item === lastDependencies[index]);
+    if (allTheSame) {
+      hookIndex++;
+    } else {
+      destroyFunction && destroyFunction();
+      //把回调放在了宏任务队列中
+      setTimeout(() => {
+        let destroyFunction = callback();
+        hookStates[hookIndex++] = [destroyFunction, dependencies];
+      });
+    }
+  } else {
+    // 第一次渲染
+    setTimeout(() => {
+      let destroyFunction = callback();
+      hookStates[hookIndex++] = [destroyFunction, dependencies];
+    });
+  }
+}
 const ReactDOM = { render, createDOM };
 export default ReactDOM;
