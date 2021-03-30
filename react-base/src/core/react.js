@@ -63,6 +63,7 @@ function cloneElement(oldElement, newProps, ...newChildren) {
     children = [];
   }
   children.push(...newChildren);
+  // 把子元素都变成数组的目的是，统一进行虚拟dom的包裹
   children = children.map(wrapToVdom);
   if (children.length === 0) {
     children = undefined;

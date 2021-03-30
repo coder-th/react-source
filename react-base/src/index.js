@@ -3,47 +3,112 @@ import React from "./core/react";
 // import React from "react";
 // import ReactDOM from "react-dom";
 
-class ClassCompoment extends React.Component {
-  componentWillUpdate() {
-    console.log("父组件即将更新");
+// render props 可以想象成插槽，是有逻辑，扩展内容， 而HOC是有内容，扩展逻辑
+// render Props写法一
+// 将内容添加在children中，children是一个函数
+/* class MouseTracker extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      x: 0,
+      y: 0,
+    };
   }
-  componentDidUpdate() {
-    console.log("父组件完成更新");
-  }
+  handleMouseMove = (event) => {
+    this.setState({
+      x: event.clientX,
+      y: event.clientY,
+    });
+  };
   render() {
     return (
-      <button></button>
+      <div onMouseMove={this.handleMouseMove}>
+        {this.props.children(this.state)}
+      </div>
     );
   }
 }
+ReactDOM.render(
+  <MouseTracker>
+    {(props) => (
+      <p>
+        鼠标移动的位置: x: {props.x},y: {props.y}
+      </p>
+    )}
+  </MouseTracker>, document.getElementById("root")
+); */
 
-let withLoading = (OldComponent) => {
-  return class extends OldComponent {
-    state = {
-      count: 0
+// render Props写法二
+// 将内容添加在属性中，属性是一个函数
+/* class MouseTracker2 extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      x: 0,
+      y: 0,
+    };
+  }
+  handleMouseMove = (event) => {
+    this.setState({
+      x: event.clientX,
+      y: event.clientY,
+    });
+  };
+  render() {
+    return (
+      <div onMouseMove={this.handleMouseMove}>
+        {this.props.render(this.state)}
+      </div>
+    );
+  }
+}
+ReactDOM.render(
+  <MouseTracker2
+    render={(props) => (
+      <p>
+        鼠标移动的位置: x: {props.x},y: {props.y}
+      </p>
+    )}
+  ></MouseTracker2>,
+  document.getElementById("root")
+); */
+
+// render Props写法三
+// 通过HOC组件进行包裹
+function withTracker(OldComponent) {
+  return class extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = {
+        x: 0,
+        y: 0,
+      };
     }
-    add = () => {
+    handleMouseMove = (event) => {
       this.setState({
-        count: this.state.count + 1
-      })
-    }
-    componentWillUpdate() {
-      console.log("子组件即将更新");
-      super.componentWillUpdate()
-    }
-    componentDidUpdate() {
-      console.log("子组件完成更新");
-      super.componentDidUpdate()
-    }
+        x: event.clientX,
+        y: event.clientY,
+      });
+    };
     render() {
-      let superRenderDOM = super.render()
-      let renderElement = React.cloneElement(superRenderDOM,{onClick: this.add},this.state.count)
-      return renderElement
+      return (
+        <div onMouseMove={this.handleMouseMove}>
+          <OldComponent {...this.state}></OldComponent>
+        </div>
+      );
     }
   };
-};
-let NewClassComponent = withLoading(ClassCompoment)
+}
+function Show(props) {
+  return (
+    <p>
+      鼠标移动的位置: x: {props.x},y: {props.y}
+    </p>
+  );
+}
+let MouseTracker3 = withTracker(Show);
+
 ReactDOM.render(
-  <NewClassComponent></NewClassComponent>,
+  <MouseTracker3></MouseTracker3>,
   document.getElementById("root")
 );
