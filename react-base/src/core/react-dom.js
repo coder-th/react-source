@@ -433,5 +433,8 @@ export function useRef(initialState) {
   hookStates[hookIndex] = hookStates[hookIndex] || { current: initialState };
   return hookStates[hookIndex++];
 }
+export function useContext(context) {
+  return context._currentValue
+}
 const ReactDOM = { render, createDOM };
 export default ReactDOM;

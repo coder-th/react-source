@@ -1,32 +1,58 @@
 import ReactDOM from "./core/react-dom";
-import React,{ useCallback, useMemo, useState ,useReducer,useEffect,useLayoutEffect,useRef}  from "./core/react";
-// import React, { useEffect,useRef,useLayoutEffect} from "react";
+import React, {
+  useCallback,
+  useMemo,
+  useState,
+  useReducer,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useContext
+} from "./core/react";
+// import React, {
+//   useEffect,
+//   useRef,
+//   useLayoutEffect,
+//   useReducer,
+//   useContext,
+// } from "react";
 // import ReactDOM from "react-dom";
 
+const ADD = "ADD";
+const MINUS = "MINUS";
+/**
+ * 处理器，传入老状态，返回新状态
+ * @param {*} state
+ * @param {*} action
+ */
+function reducer(state, action) {
+  switch (action.type) {
+    case ADD:
+      return { ...state, number: state.number + 1 };
+    case MINUS:
+      return { ...state, number: state.number - 1 };
+    default:
+      return state;
+  }
+}
+const CouterContext = React.createContext();
+function Counter() {
+  const { state, dispatch } = useContext(CouterContext);
+  return (
+    <div>
+      <p>{state.number}</p>
+      <button onClick={() => dispatch({ type: ADD })}>+</button>
+      <button onClick={() => dispatch({ type: MINUS })}>-</button>
+    </div>
+  );
+}
 
 function App() {
-  let style = {
-    width: '200px',
-    height: '200px',
-    backgroundColor: 'red'
-  }
-  const divRef = useRef()
-/*   有动画效果，因为，useEffect是宏任务实现的，在浏览器渲染后执行的，
-  所以DOM元素在浏览器渲染后会进行更新 */
-  useEffect(()=> {
-    divRef.current.style.webkitTransform = 'translateX(500px)'
-    divRef.current.style.transition = 'all 5000ms'
-  },[])
-  /* 没有动画效果，因为useLayoutEffect是微任务实现的，在浏览器渲染之前就会执行，
-  所以dom元素在浏览器进行渲染之前就已经进行更新操作了 */
-/*   useLayoutEffect(()=> {
-    divRef.current.style.webkitTransform = 'translateX(500px)'
-    divRef.current.style.transition = 'all 5000ms'
-  },[]) */
+  const [state, dispatch] = useReducer(reducer, { number: 0 });
   return (
-    <div style={style} ref={divRef}>
-      <p>我是内容</p>
-    </div>
+    <CouterContext.Provider value={{ state, dispatch }}>
+      <Counter></Counter>
+    </CouterContext.Provider>
   );
 }
 
