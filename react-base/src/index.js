@@ -1,21 +1,31 @@
 import ReactDOM from "./core/react-dom";
-import React,{ useCallback, useMemo, useState ,useReducer,useEffect}  from "./core/react";
-// import React, { useEffect,useState } from "react";
+import React,{ useCallback, useMemo, useState ,useReducer,useEffect,useLayoutEffect,useRef}  from "./core/react";
+// import React, { useEffect,useRef,useLayoutEffect} from "react";
 // import ReactDOM from "react-dom";
 
 
 function App() {
-  const [number,setNumber] = useState(0)
-  // useEffect会在组件渲染后执行，执行的是副作用，包括定时器，IO操作，dom操作等
+  let style = {
+    width: '200px',
+    height: '200px',
+    backgroundColor: 'red'
+  }
+  const divRef = useRef()
+/*   有动画效果，因为，useEffect是宏任务实现的，在浏览器渲染后执行的，
+  所以DOM元素在浏览器渲染后会进行更新 */
   useEffect(()=> {
-    const timer = setInterval(()=> {setNumber(number+1)},1000)
-    return () => {
-      clearInterval(timer)
-    }
-  })
+    divRef.current.style.webkitTransform = 'translateX(500px)'
+    divRef.current.style.transition = 'all 5000ms'
+  },[])
+  /* 没有动画效果，因为useLayoutEffect是微任务实现的，在浏览器渲染之前就会执行，
+  所以dom元素在浏览器进行渲染之前就已经进行更新操作了 */
+/*   useLayoutEffect(()=> {
+    divRef.current.style.webkitTransform = 'translateX(500px)'
+    divRef.current.style.transition = 'all 5000ms'
+  },[]) */
   return (
-    <div>
-      <p>number: {number}</p>
+    <div style={style} ref={divRef}>
+      <p>我是内容</p>
     </div>
   );
 }

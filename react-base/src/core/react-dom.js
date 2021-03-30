@@ -56,7 +56,7 @@ export function createDOM(vdom) {
   }
   // 真实DOM保存到虚拟DOM上
   vdom.dom = dom;
-  // 将真实dom保存在虚拟dom的ref上
+  // 将真实dom保存在虚拟dom的ref上，useRef会进行使用
   if (ref) {
     ref.current = dom;
   }
@@ -402,6 +402,36 @@ export function useEffect(callback, dependencies) {
       hookStates[hookIndex++] = [destroyFunction, dependencies];
     });
   }
+}
+export function useLayoutEffect(callback, dependencies) {
+  if (hookStates[hookIndex]) {
+    let [destroyFunction, lastDependencies] = hookStates[hookIndex];
+    let allTheSame =
+      dependencies &&
+      dependencies.every((item, index) => item === lastDependencies[index]);
+    if (allTheSame) {
+      // 依赖跟上一次一样，也就是没有更新，直接跳过
+      hookIndex++;
+    } else {
+      destroyFunction && destroyFunction();
+      //把函数放在了微任务队列中
+      queueMicrotask(() => {
+        let destroyFunction = callback();
+        hookStates[hookIndex++] = [destroyFunction, dependencies];
+      });
+    }
+  } else {
+    // 第一次渲染
+    //把函数放在了微任务队列中
+    queueMicrotask(() => {
+      let destroyFunction = callback();
+      hookStates[hookIndex++] = [destroyFunction, dependencies];
+    });
+  }
+}
+export function useRef(initialState) {
+  hookStates[hookIndex] = hookStates[hookIndex] || { current: initialState };
+  return hookStates[hookIndex++];
 }
 const ReactDOM = { render, createDOM };
 export default ReactDOM;
