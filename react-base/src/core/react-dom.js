@@ -308,21 +308,7 @@ function updateClassComponent(oldVdom, newVdom) {
 }
 
 export function useState(initialState) {
-  if (typeof initialState === "function") {
-    initialState = initialState();
-  }
-  // 把老的指取出来
-  hookStates[hookIndex] = hookStates[hookIndex] || initialState;
-  let currentIndex = hookIndex;
-  function setState(newState) {
-    if (typeof newState === "function") {
-      // 拿到最新的值
-      newState = newState(hookStates[currentIndex]);
-    }
-    hookStates[currentIndex] = newState;
-    scheduleUpdate();
-  }
-  return [hookStates[hookIndex++], setState];
+  return useReducer(null, initialState);
 }
 
 export function useMemo(factory, deps) {
@@ -361,6 +347,36 @@ export function useCallback(callback, deps) {
     hookStates[hookIndex++] = [callback, deps];
     return callback;
   }
+}
+
+export function useReducer(reducer, initialState) {
+  if (typeof initialState === "function") {
+    initialState = initialState();
+  }
+  // 把老的指取出来
+  hookStates[hookIndex] = hookStates[hookIndex] || initialState;
+  let currentIndex = hookIndex;
+  function dispatch(action) {
+    let lastState = hookStates[currentIndex]; //获取老状态
+    let nextState;
+    if (reducer) {
+      // 执行拿到新的state
+      nextState = reducer(lastState, action);
+    } else {
+      // 没有处理器，直接等于action,比如useState
+      nextState = action;
+    }
+    // 派发的是一个函数,比如useState
+    if (typeof action === "function") {
+      nextState = action(lastState);
+    }
+    //如果老状态和新状态不相等，用的是浅比较
+    if (lastState !== nextState) {
+      hookStates[currentIndex] = nextState;
+      scheduleUpdate(); //当状态改变后要重新更新应用
+    } //如果是一样的，什么都不做
+  }
+  return [hookStates[hookIndex++], dispatch];
 }
 const ReactDOM = { render, createDOM };
 export default ReactDOM;

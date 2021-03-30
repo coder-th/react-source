@@ -1,32 +1,34 @@
 import ReactDOM from "./core/react-dom";
-import React,{ useCallback, useMemo, useState }  from "./core/react";
-// import React, { useCallback, useMemo, useState } from "react";
+import React,{ useCallback, useMemo, useState ,useReducer}  from "./core/react";
+// import React, { useReducer } from "react";
 // import ReactDOM from "react-dom";
-function Child({book,handleClick}) {
-  console.log("Child");
-  return (
-    <div>
-      <button onClick={handleClick}>{book.count}</button>
-    </div>
-  )
-}
-let MemorizeChild = React.memo(Child)
-function App() {
-  const [name,setName] = useState('tianheng')
-  const [count,setCount] = useState(0)
-  let book = useMemo(() => ({count}),[count])
-  const handleClick = useCallback(() => {
-    setCount(count+1)
-  },[count])
-  console.log("App");
-  const handleChange = () => {
-    setName(name + '22322')
+const ADD = "ADD";
+const MINUS = "MINUS";
+/**
+ * 处理器，传入老状态，返回新状态
+ * @param {*} state
+ * @param {*} action
+ */
+function reducer(state, action) {
+  switch (action.type) {
+    case ADD:
+      return { ...state, number: state.number + 1 };
+    case MINUS:
+      return { ...state, number: state.number - 1 };
+    default:
+      return state;
   }
+}
+
+function App() {
+  const [state, dispatch] = useReducer(reducer, { number: 0 });
+  const [count,setCount] = useState(0)
   return (
     <div>
-      <button onClick={handleChange}>+Name</button>
-      <div>{name}</div>
-      <MemorizeChild book={book} handleClick={handleClick}></MemorizeChild>
+      <p>{state.number}</p>
+      <button onClick={() => dispatch({ type: ADD })}>+</button>
+      <button onClick={() => dispatch({ type: MINUS })}>-</button>
+      <button onClick={() => setCount(count+1)}>{count}</button>
     </div>
   );
 }
